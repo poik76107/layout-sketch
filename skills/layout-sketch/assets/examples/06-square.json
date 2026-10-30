@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "canvas": "square",
+  "shapes": [
+    {"id": "shaft", "type": "line", "from": [15, 50], "to": [85, 50], "width": "thin"},
+    {"id": "outer", "type": "circle", "cx": 50, "cy": 50, "r": 30},
+    {"id": "inner", "type": "circle", "cx": 50, "cy": 50, "r": 20, "width": "thin"},
+    {"id": "pointer", "type": "line", "from": [50, 50], "angle": -45, "length": 25},
+    {"id": "center-dot", "type": "circle", "cx": 50, "cy": 50, "r": 1, "fill": "black", "width": "thin"}
+  ]
+}

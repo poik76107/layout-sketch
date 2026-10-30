@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "canvas": "landscape",
+  "shapes": [
+    {
+      "id": "wheel-assembly",
+      "type": "group",
+      "at": [45, 50],
+      "rotate": 30,
+      "scale": 1.4,
+      "flip_x": true,
+      "shapes": [
+        {"id": "rim", "type": "circle", "cx": 0, "cy": 0, "r": 18, "fill": "white"},
+        {
+          "id": "inner-spokes",
+          "type": "repeat_rotate",
+          "center": [0, 0],
+          "count": 6,
+          "start": 0,
+          "shapes": [
+            {"id": "spoke-segment", "type": "line", "from": [0, 0], "to": [18, 0], "width": "thin"}
+          ]
+        },
+        {"id": "hub", "type": "circle", "cx": 0, "cy": 0, "r": 2, "fill": "white"}
+      ]
+    },
+    {
+      "id": "radial-rays",
+      "type": "repeat_rotate",
+      "center": [110, 50],
+      "count": 8,
+      "start": 22.5,
+      "shapes": [
+        {"id": "ray", "type": "line", "from": [12, 0], "angle": 0, "length": 10, "width": "thin"}
+      ]
+    },
+    {"id": "sun-center", "type": "circle", "cx": 110, "cy": 50, "r": 8, "fill": "white"}
+  ]
+}

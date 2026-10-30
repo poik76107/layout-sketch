@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "canvas": "landscape",
+  "shapes": [
+    {"id": "background-line", "type": "line", "from": [10, 50], "to": [140, 50], "width": "thin"},
+    {"id": "curved-body", "type": "path", "d": "M 15 55 Q 25 15 45 40 C 60 25 75 35 75 55 L 15 55 Z", "fill": "white"},
+    {"id": "upper-curve", "type": "curve", "from": [90, 40], "ctrl1": [100, 15], "ctrl2": [120, 15], "to": [135, 40]},
+    {"id": "oval", "type": "ellipse", "cx": 110, "cy": 65, "rx": 18, "ry": 10, "angle": -20, "fill": "white"},
+    {"id": "lower-arc", "type": "arc", "cx": 45, "cy": 75, "rx": 20, "ry": 10, "start": 180, "sweep": -180, "width": "thin"}
+  ]
+}

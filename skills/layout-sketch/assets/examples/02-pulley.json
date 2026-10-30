@@ -1,0 +1,18 @@
+{
+  "schema_version": 1,
+  "canvas": "landscape",
+  "shapes": [
+    {"id": "post", "type": "line", "from": [110, 90], "to": [110, 15]},
+    {"id": "beam", "type": "line", "from": [45, 15], "to": [110, 15]},
+    {"id": "brace", "type": "line", "from": [90, 15], "to": [110, 35]},
+    {"id": "hanger", "type": "line", "from": [75, 15], "to": [75, 35]},
+    {"id": "pulley", "type": "circle", "cx": 75, "cy": 35, "r": 10, "fill": "white"},
+    {"id": "axle", "type": "circle", "cx": 75, "cy": 35, "r": 1, "fill": "black", "width": "thin"},
+    {"id": "rope-left", "type": "line", "from": [65, 70], "to": [65, 35], "width": "thin"},
+    {"id": "rope-top", "type": "arc", "cx": 75, "cy": 35, "rx": 10, "ry": 10, "start": 180, "sweep": 180, "width": "thin"},
+    {"id": "rope-right", "type": "line", "from": [85, 35], "to": [85, 62], "width": "thin"},
+    {"id": "sling", "type": "polyline", "pts": [[75, 70], [85, 62], [95, 70]], "width": "thin"},
+    {"id": "counterweight", "type": "rect", "x": 60, "y": 70, "w": 10, "h": 10, "fill": "white"},
+    {"id": "basket", "type": "arc", "cx": 85, "cy": 70, "rx": 10, "ry": 10, "start": 0, "sweep": 180, "chord": true, "fill": "white"}
+  ]
+}

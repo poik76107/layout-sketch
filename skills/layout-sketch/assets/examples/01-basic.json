@@ -1,0 +1,9 @@
+{
+  "schema_version": 1,
+  "canvas": "landscape",
+  "shapes": [
+    {"id": "connector", "type": "line", "from": [53, 50], "to": [90, 50], "width": "thin"},
+    {"id": "left-object", "type": "circle", "cx": 35, "cy": 50, "r": 18, "fill": "white"},
+    {"id": "right-object", "type": "rect", "x": 90, "y": 35, "w": 35, "h": 30, "fill": "white"}
+  ]
+}

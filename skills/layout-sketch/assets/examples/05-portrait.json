@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "canvas": "portrait",
+  "shapes": [
+    {"id": "ground", "type": "line", "from": [0, 130], "to": [100, 130], "allow_clip": ["left", "right"]},
+    {"id": "building", "type": "rect", "x": 25, "y": 65, "w": 50, "h": 65, "fill": "white"},
+    {"id": "roof", "type": "polygon", "pts": [[20, 65], [50, 30], [80, 65]], "fill": "white"},
+    {"id": "door", "type": "rect", "x": 42, "y": 100, "w": 16, "h": 30},
+    {"id": "window", "type": "circle", "cx": 50, "cy": 80, "r": 7, "width": "thin"}
+  ]
+}

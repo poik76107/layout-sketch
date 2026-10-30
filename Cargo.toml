@@ -1,0 +1,21 @@
+[package]
+name = "layout-sketch"
+version = "0.1.0"
+edition = "2024"
+license = "MIT"
+repository = "https://github.com/poik76107/layout-sketch"
+description = "Offline CLI that renders JSON scenes of lines, curves and shapes into exact black-on-white layout PNGs for AI image generation"
+keywords = ["sketch", "layout", "png", "image-generation", "cli"]
+categories = ["command-line-utilities", "graphics"]
+readme = "README.md"
+
+[[bin]]
+name = "sketch"
+path = "src/main.rs"
+
+[dependencies]
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+tiny-skia = "0.11"
+image = { version = "0.25", default-features = false, features = ["png"] }
+tempfile = "3"

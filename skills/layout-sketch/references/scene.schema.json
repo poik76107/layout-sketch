@@ -1,0 +1,895 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "sketch scene schema 1 (sketch 0.1.x)",
+  "description": "Structural contract. Runtime first decodes numbers to finite binary64 with rounding, then checks domains, schema_version equality and count integrality/range on decoded values rather than exact decimal tokens. Integral spellings and tokens rounded to permitted values are accepted; overflow to infinity is rejected. Runtime additionally validates geometry, ids, duplicate keys, path grammar and expansion limits, and rendering requires representable intermediate and transformed coordinates. Runtime limits each outward-rounded painted path extent after transforms and stroke expansion to 16777216 pixels per axis inclusive, checking every stroke outline and source paths with white or black fill; allow_clip does not bypass it.",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "const": 1
+    },
+    "canvas": {
+      "enum": [
+        "landscape",
+        "portrait",
+        "square"
+      ],
+      "default": "landscape"
+    },
+    "shapes": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/primitive"
+          },
+          {
+            "$ref": "#/$defs/group"
+          },
+          {
+            "$ref": "#/$defs/repeat_rotate"
+          }
+        ]
+      }
+    }
+  },
+  "required": [
+    "schema_version",
+    "shapes"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "line": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "maxLength": 64
+        },
+        "allow_clip": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "default": []
+        },
+        "width": {
+          "enum": [
+            "thick",
+            "thin"
+          ],
+          "default": "thick"
+        },
+        "fill": {
+          "const": "none",
+          "default": "none"
+        },
+        "type": {
+          "const": "line"
+        },
+        "from": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "to": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "angle": {
+          "type": "number"
+        },
+        "length": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "type",
+        "from"
+      ],
+      "additionalProperties": false,
+      "oneOf": [
+        {
+          "required": [
+            "to"
+          ],
+          "not": {
+            "anyOf": [
+              {
+                "required": [
+                  "angle"
+                ]
+              },
+              {
+                "required": [
+                  "length"
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "required": [
+            "angle",
+            "length"
+          ],
+          "not": {
+            "required": [
+              "to"
+            ]
+          }
+        }
+      ]
+    },
+    "polyline": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "maxLength": 64
+        },
+        "allow_clip": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "default": []
+        },
+        "width": {
+          "enum": [
+            "thick",
+            "thin"
+          ],
+          "default": "thick"
+        },
+        "fill": {
+          "const": "none",
+          "default": "none"
+        },
+        "type": {
+          "const": "polyline"
+        },
+        "pts": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "minItems": 2
+        }
+      },
+      "required": [
+        "type",
+        "pts"
+      ],
+      "additionalProperties": false
+    },
+    "polygon": {
+      "description": "Closes automatically; appending the first point is unnecessary. Runtime accepts one terminal copy of the first point, preserves the source list, and excludes only that marker for validation. The effective contour needs at least three points, no adjacent duplicates including last-to-first, and exact noncollinearity over decoded binary64 coordinates without tolerance, using the first point and the first different point as a baseline. Zero signed area alone does not establish degeneracy. Further duplicates are not removed.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "maxLength": 64
+        },
+        "allow_clip": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "default": []
+        },
+        "width": {
+          "enum": [
+            "thick",
+            "thin"
+          ],
+          "default": "thick"
+        },
+        "fill": {
+          "enum": [
+            "none",
+            "white",
+            "black"
+          ],
+          "default": "none"
+        },
+        "type": {
+          "const": "polygon"
+        },
+        "pts": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "prefixItems": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "number"
+              }
+            ],
+            "minItems": 2,
+            "maxItems": 2
+          },
+          "minItems": 3
+        }
+      },
+      "required": [
+        "type",
+        "pts"
+      ],
+      "additionalProperties": false
+    },
+    "rect": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "maxLength": 64
+        },
+        "allow_clip": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "default": []
+        },
+        "width": {
+          "enum": [
+            "thick",
+            "thin"
+          ],
+          "default": "thick"
+        },
+        "fill": {
+          "enum": [
+            "none",
+            "white",
+            "black"
+          ],
+          "default": "none"
+        },
+        "type": {
+          "const": "rect"
+        },
+        "x": {
+          "type": "number"
+        },
+        "y": {
+          "type": "number"
+        },
+        "w": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "h": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "type",
+        "x",
+        "y",
+        "w",
+        "h"
+      ],
+      "additionalProperties": false
+    },
+    "circle": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "maxLength": 64
+        },
+        "allow_clip": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "default": []
+        },
+        "width": {
+          "enum": [
+            "thick",
+            "thin"
+          ],
+          "default": "thick"
+        },
+        "fill": {
+          "enum": [
+            "none",
+            "white",
+            "black"
+          ],
+          "default": "none"
+        },
+        "type": {
+          "const": "circle"
+        },
+        "cx": {
+          "type": "number"
+        },
+        "cy": {
+          "type": "number"
+        },
+        "r": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      },
+      "required": [
+        "type",
+        "cx",
+        "cy",
+        "r"
+      ],
+      "additionalProperties": false
+    },
+    "ellipse": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "maxLength": 64
+        },
+        "allow_clip": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "default": []
+        },
+        "width": {
+          "enum": [
+            "thick",
+            "thin"
+          ],
+          "default": "thick"
+        },
+        "fill": {
+          "enum": [
+            "none",
+            "white",
+            "black"
+          ],
+          "default": "none"
+        },
+        "type": {
+          "const": "ellipse"
+        },
+        "cx": {
+          "type": "number"
+        },
+        "cy": {
+          "type": "number"
+        },
+        "rx": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "ry": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "angle": {
+          "type": "number",
+          "default": 0
+        }
+      },
+      "required": [
+        "type",
+        "cx",
+        "cy",
+        "rx",
+        "ry"
+      ],
+      "additionalProperties": false
+    },
+    "arc": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "maxLength": 64
+        },
+        "allow_clip": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "default": []
+        },
+        "width": {
+          "enum": [
+            "thick",
+            "thin"
+          ],
+          "default": "thick"
+        },
+        "fill": {
+          "enum": [
+            "none",
+            "white",
+            "black"
+          ],
+          "default": "none"
+        },
+        "type": {
+          "const": "arc"
+        },
+        "cx": {
+          "type": "number"
+        },
+        "cy": {
+          "type": "number"
+        },
+        "rx": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "ry": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        },
+        "angle": {
+          "type": "number",
+          "default": 0
+        },
+        "start": {
+          "type": "number"
+        },
+        "sweep": {
+          "type": "number",
+          "minimum": -360,
+          "maximum": 360,
+          "not": {
+            "const": 0
+          }
+        },
+        "chord": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "type",
+        "cx",
+        "cy",
+        "rx",
+        "ry",
+        "start",
+        "sweep"
+      ],
+      "additionalProperties": false,
+      "if": {
+        "properties": {
+          "chord": {
+            "const": true
+          }
+        },
+        "required": [
+          "chord"
+        ]
+      },
+      "else": {
+        "properties": {
+          "fill": {
+            "const": "none"
+          }
+        }
+      }
+    },
+    "curve": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "maxLength": 64
+        },
+        "allow_clip": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "default": []
+        },
+        "width": {
+          "enum": [
+            "thick",
+            "thin"
+          ],
+          "default": "thick"
+        },
+        "fill": {
+          "const": "none",
+          "default": "none"
+        },
+        "type": {
+          "const": "curve"
+        },
+        "from": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "ctrl1": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "ctrl2": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "to": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        }
+      },
+      "required": [
+        "type",
+        "from",
+        "ctrl1",
+        "ctrl2",
+        "to"
+      ],
+      "additionalProperties": false
+    },
+    "path": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "maxLength": 64
+        },
+        "allow_clip": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "default": []
+        },
+        "width": {
+          "enum": [
+            "thick",
+            "thin"
+          ],
+          "default": "thick"
+        },
+        "fill": {
+          "enum": [
+            "none",
+            "white",
+            "black"
+          ],
+          "default": "none"
+        },
+        "type": {
+          "const": "path"
+        },
+        "d": {
+          "type": "string",
+          "minLength": 1,
+          "$comment": "Runtime checks UTF-8 byte limit 65536 and explicit absolute M/L/Q/C/Z grammar."
+        }
+      },
+      "required": [
+        "type",
+        "d"
+      ],
+      "additionalProperties": false
+    },
+    "primitive": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/line"
+        },
+        {
+          "$ref": "#/$defs/polyline"
+        },
+        {
+          "$ref": "#/$defs/polygon"
+        },
+        {
+          "$ref": "#/$defs/rect"
+        },
+        {
+          "$ref": "#/$defs/circle"
+        },
+        {
+          "$ref": "#/$defs/ellipse"
+        },
+        {
+          "$ref": "#/$defs/arc"
+        },
+        {
+          "$ref": "#/$defs/curve"
+        },
+        {
+          "$ref": "#/$defs/path"
+        }
+      ]
+    },
+    "repeat_rotate": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "maxLength": 64
+        },
+        "allow_clip": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "default": []
+        },
+        "type": {
+          "const": "repeat_rotate"
+        },
+        "center": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2
+        },
+        "count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 256
+        },
+        "start": {
+          "type": "number",
+          "default": 0
+        },
+        "step": {
+          "type": "number"
+        },
+        "shapes": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/primitive"
+          },
+          "minItems": 1,
+          "maxItems": 10000
+        }
+      },
+      "required": [
+        "type",
+        "center",
+        "count",
+        "shapes"
+      ],
+      "additionalProperties": false
+    },
+    "group": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z][A-Za-z0-9_-]{0,63}$",
+          "maxLength": 64
+        },
+        "allow_clip": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "left",
+              "top",
+              "right",
+              "bottom"
+            ]
+          },
+          "uniqueItems": true,
+          "maxItems": 4,
+          "default": []
+        },
+        "type": {
+          "const": "group"
+        },
+        "at": {
+          "type": "array",
+          "prefixItems": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "number"
+            }
+          ],
+          "minItems": 2,
+          "maxItems": 2,
+          "default": [
+            0,
+            0
+          ]
+        },
+        "rotate": {
+          "type": "number",
+          "default": 0
+        },
+        "scale": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 1
+        },
+        "flip_x": {
+          "type": "boolean",
+          "default": false
+        },
+        "shapes": {
+          "type": "array",
+          "items": {
+            "oneOf": [
+              {
+                "$ref": "#/$defs/primitive"
+              },
+              {
+                "$ref": "#/$defs/repeat_rotate"
+              }
+            ]
+          },
+          "minItems": 1,
+          "maxItems": 10000
+        }
+      },
+      "required": [
+        "type",
+        "shapes"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

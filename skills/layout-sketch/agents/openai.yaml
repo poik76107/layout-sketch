@@ -1,0 +1,4 @@
+interface:
+  display_name: "Layout Sketch"
+  short_description: "Black-and-white layout sketches for imagegen"
+  default_prompt: "Use $layout-sketch to create and inspect a layout reference before image generation."
